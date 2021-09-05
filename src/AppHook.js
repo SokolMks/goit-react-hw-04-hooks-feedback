@@ -54,3 +54,4 @@ function AppHook() {
   );
 
 }
+export default AppHook;
