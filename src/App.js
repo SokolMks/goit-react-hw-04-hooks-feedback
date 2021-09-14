@@ -1,86 +1,57 @@
-import React from "react";
+import { useState, useEffect } from 'react';
 import Section from "./components/Section/Section";
 import Feedback from "./components/Feedback/Feedback";
 import Statistics from "./components/Statistics/Statistics";
 
-class App extends React.Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
-    total: 0,
-    positive: 0,
-  };
-
-  onClickLike = () => {
-    this.setState((prevState) => ({
-      good: prevState.good + 1,
-    }));
-    this.countTotalFeedback();
-
-
-    this.countPositiveFeedbackPercentage();
-  };
-
-  // onButtonClick = (e) => {
-  //   this.setState(prevState => ({
-  //     [e.target.textContent.toLowerCase()]: prevState[e.target.textContent.toLowerCase()] + 1,
-  //   }))};
+function AppHook() {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+  const [total, setTotal] = useState(-1);
+  const [positive, setPositive] = useState(0);
   
+  
+  useEffect(() => {
+    setPositive((good / total) * 100);
+  }, [good, total]);
 
-  onClickNeutral = () => {
-    this.setState((prevState) => ({
-      neutral: prevState.neutral + 1,
-    }));
-    this.countTotalFeedback();
+  useEffect(() => {
+    setTotal((prevState) => prevState + 1);
+  }, [good, neutral, bad]);
 
-    if (this.state.good >= 1) {
-      this.countPositiveFeedbackPercentage();
+  const onClickLike = () => {
+    setGood((prevState) => prevState + 1);
+
+    if (total === 0) {
+      setPositive(100);
     }
   };
 
-  onClickBad = () => {
-    this.setState((prevState) => ({
-      bad: prevState.bad + 1,
-    }));
-    this.countTotalFeedback();
-
-    if (this.state.good >= 1) {
-      this.countPositiveFeedbackPercentage();
-    }
+  const onClickNeutral = () => {
+    setNeutral((prevState) => prevState + 1);
   };
 
-  countTotalFeedback = () => {
-    this.setState((prevState) => ({
-      total: prevState.total + 1,
-    }));
+  const onClickBad = () => {
+    setBad((prevState) => prevState + 1);
   };
 
-  countPositiveFeedbackPercentage = () => {
-    this.setState((prevState) => ({
-      positive: (prevState.good / prevState.total) * 100,
-    }));
-  };
+  return (
+    <Section>
+      <Feedback
+        onClickLike={onClickLike}
+        onClickNeutral={onClickNeutral}
+        onClickBad={onClickBad}
+      />
 
-  render() {
-    return (
-      <Section>
-        <Feedback
-          onClickLike={this.onClickLike}
-          onClickNeutral={this.onClickNeutral}
-          onClickBad={this.onClickBad}
-        />
+      <Statistics
+        good={good}
+        neutral={neutral}
+        bad={bad}
+        total={total}
+        positive={positive}
+      />
+    </Section>
+  );
 
-        <Statistics
-          good={this.state.good}
-          neutral={this.state.neutral}
-          bad={this.state.bad}
-          total={this.state.total}
-          positive={this.state.positive}
-        />
-      </Section>
-    );
-  }
 }
-
-export default App;
+export default AppHook;
